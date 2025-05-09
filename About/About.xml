@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+
+    <packageId>DogLuggage.Rule_Regex</packageId>
+
+	<name>Rule: Regex</name>
+	<author>DogLuggage</author>
+	
+    <modVersion IgnoreIfNoMatchingField="True">0.1</modVersion>
+
+    <supportedVersions>
+        <li>1.5</li>
+    </supportedVersions>
+	
+    <modDependencies></modDependencies>
+
+    <description>Adds a grammar rule "RR.Rule_Regex", which selects multiple symbols that all pass a regex when concatinated together. Allows for things like making pawn names that alliterate or any more complicated thing that can be realized with regex.</description>
+	
+</ModMetaData>

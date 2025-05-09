@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <RulePackDef>
+        <defName>MaleNamesThatAlliterate</defName>
+        <rulePack>
+            <rulesStrings>
+                <li>r_name->[FirstLastMale] [FirstLastMale]</li>
+            </rulesStrings>
+            <rulesRaw>
+                <li Class="RR.Rule_Regex">
+                    <keyword>FirstLastMale</keyword>
+                    <!-- regex to match alliterative pair -->
+                    <regex>(?i)^(.).*\n\1</regex>
+                    <symbols>
+                        <li>NamePersonMale</li>
+                        <li>NamePersonLast</li>
+                    </symbols>
+                </li>
+            </rulesRaw>
+        </rulePack>
+    </RulePackDef>
+
+    <RR.RegexSymbolDef>
+        <defName>NamePersonMale</defName>
+        <pawnNames>
+            <li>
+                <slot>First</slot>
+                <gender>Male</gender>
+            </li>
+        </pawnNames>
+    </RR.RegexSymbolDef>
+
+    <RR.RegexSymbolDef>
+        <defName>NamePersonLast</defName>
+        <pawnNames>
+            <li>
+                <slot>Last</slot>
+            </li>
+        </pawnNames>
+    </RR.RegexSymbolDef>
+</Defs>
