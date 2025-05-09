@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Verse;
 using Verse.Grammar;
@@ -11,7 +12,10 @@ namespace RR
         private int iterator = 0;
         private bool resolvable = true;
 
-        public string regex = "";
+        public string regex;
+
+        [LoadAlias("regices")]
+        public List<RegexEntry> regexes;
 
         public string scheme;
 
@@ -66,6 +70,11 @@ namespace RR
                 }
             }
 
+            if (!regexes.NullOrEmpty() && regexes.Count == symbols.Count - 1)
+            {
+                regexes.Prepend(new RegexEntry());
+            }
+
             resultStrings = new string[schemeVals.Length];
             foreach (RegexSymbolDef member in symbols)
             {
@@ -84,10 +93,40 @@ namespace RR
             for (int i = 0; i < symbols.Count; i++)
             {
                 valids[i] = new List<int>();
-                if (i == 0)
+
+                string tester = "";
+                if (i != 0)
                 {
-                    // no regex, just allow all strings
-                    // could make do regex, but I assume only valid strings will be supplied to first group
+                    if (regexes.NullOrEmpty() || regexes[i].concatinate == RegexConcatinationMethod.Cumulative)
+                    {
+                        // perform regex test on all previous selected strings + next
+                        for (int j = 0; j < i; j++)
+                        {
+                            tester += symbols[j].strings[result[j]] + "\n";
+                        }
+                    }
+                    else if (regexes[i].concatinate == RegexConcatinationMethod.Previous)
+                    {
+                        // perform regex test on only immediate previously selected string + next
+                        tester = symbols[i - 1] + "\n";
+                    }
+                    // if none then leave tester as ""
+                }
+
+
+                string regexLocal;
+                if (regexes.NullOrEmpty())
+                {
+                    regexLocal = regex;
+                }
+                else
+                {
+                    regexLocal = regexes[i].regex;
+                }
+
+
+                if (regexLocal.NullOrEmpty())
+                {
                     for (int j = 0; j < symbols[i].Count; j++)
                     {
                         valids[i].Add(j);
@@ -95,21 +134,18 @@ namespace RR
                 }
                 else
                 {
-                    // perform regex test on previous selected strings + all possible next ones
-                    string tester = "";
-                    for (int j = 0; j < i; j++)
-                    {
-                        tester += symbols[j].strings[result[j]] + "\n";
-                    }
                     for (int j = 0; j < symbols[i].Count; j++)
                     {
-                        if (Regex.IsMatch(tester + symbols[i].strings[j], regex))
+                        Log.Message(tester + symbols[i].strings[j]);
+                        Log.Message(regexLocal);
+                        if (Regex.IsMatch(tester + symbols[i].strings[j], regexLocal))
                         {
                             valids[i].Add(j);
                         }
                     }
                 }
                     
+
                 if (valids[i].Any())
                 {
                     // select one of the strings that passed the regex

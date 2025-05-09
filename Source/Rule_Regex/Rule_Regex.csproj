@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Rule_Regex\RegexConcatenationMethod.cs" />
+    <Compile Include="Rule_Regex\RegexEntry.cs" />
     <Compile Include="Rule_Regex\RegexSymbolDef.cs" />
     <Compile Include="Rule_Regex\PawnNameSlotGenderTuple.cs" />
     <Compile Include="Rule_Regex\Rule_Regex.cs" />

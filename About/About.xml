@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
 
-    <packageId>DogLuggage.Rule_Regex</packageId>
+    <packageId>DogLuggage.RuleRegex</packageId>
 
 	<name>Rule: Regex</name>
 	<author>DogLuggage</author>
