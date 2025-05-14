@@ -13,6 +13,7 @@ namespace RR
         private bool resolvable = true;
 
         public string regex;
+        public RegexConcatinationMethod concatinate = RegexConcatinationMethod.Cumulative;
 
         [LoadAlias("regices")]
         public List<RegexEntry> regexes;
@@ -97,7 +98,7 @@ namespace RR
                 string tester = "";
                 if (i != 0)
                 {
-                    if (regexes.NullOrEmpty() || regexes[i].concatinate == RegexConcatinationMethod.Cumulative)
+                    if (!regexes.NullOrEmpty() && regexes[i].concatinate == RegexConcatinationMethod.Cumulative || regexes.NullOrEmpty() && concatinate == RegexConcatinationMethod.Cumulative)
                     {
                         // perform regex test on all previous selected strings + next
                         for (int j = 0; j < i; j++)
@@ -105,10 +106,10 @@ namespace RR
                             tester += symbols[j].strings[result[j]] + "\n";
                         }
                     }
-                    else if (regexes[i].concatinate == RegexConcatinationMethod.Previous)
+                    else if (!regexes.NullOrEmpty() && regexes[i].concatinate == RegexConcatinationMethod.Previous || regexes.NullOrEmpty() && concatinate == RegexConcatinationMethod.Previous)
                     {
                         // perform regex test on only immediate previously selected string + next
-                        tester = symbols[i - 1] + "\n";
+                        tester = symbols[i - 1].strings[result[i - 1]] + "\n";
                     }
                     // if none then leave tester as ""
                 }
@@ -117,7 +118,14 @@ namespace RR
                 string regexLocal;
                 if (regexes.NullOrEmpty())
                 {
-                    regexLocal = regex;
+                    if (i == 0 && symbols.Count > 1)
+                    {
+                        regexLocal = null;
+                    }
+                    else
+                    {
+                        regexLocal = regex;
+                    }
                 }
                 else
                 {
@@ -136,8 +144,6 @@ namespace RR
                 {
                     for (int j = 0; j < symbols[i].Count; j++)
                     {
-                        Log.Message(tester + symbols[i].strings[j]);
-                        Log.Message(regexLocal);
                         if (Regex.IsMatch(tester + symbols[i].strings[j], regexLocal))
                         {
                             valids[i].Add(j);
