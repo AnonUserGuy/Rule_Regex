@@ -7,5 +7,6 @@ namespace RR
     {
         public PawnNameSlot slot = PawnNameSlot.First;
         public Gender gender = Gender.None;
+        public float priority = 1f;
     }
 }

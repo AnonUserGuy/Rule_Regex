@@ -9,6 +9,20 @@ namespace RR
 {
     public class Rule_Regex : Rule
     {
+
+        private struct setAndStr
+        {
+            // Contains the index for a string set and a string within that set.
+            public setAndStr(int set, int str)
+            {
+                this.set = set;
+                this.str = str;
+            }
+
+            public int set;
+            public int str;
+        }
+
         private int iterator = 0;
         private bool resolvable = true;
 
@@ -88,12 +102,12 @@ namespace RR
 
         private void Randomize()
         {
-            int[] result = new int[symbols.Count];
-            List<int>[] valids = new List<int>[symbols.Count];
+            setAndStr[] result = new setAndStr[symbols.Count];
+            List<setAndStr>[] valids = new List<setAndStr>[symbols.Count];
 
             for (int i = 0; i < symbols.Count; i++)
             {
-                valids[i] = new List<int>();
+                valids[i] = new List<setAndStr>();
 
                 string tester = "";
                 if (i != 0)
@@ -103,13 +117,13 @@ namespace RR
                         // perform regex test on all previous selected strings + next
                         for (int j = 0; j < i; j++)
                         {
-                            tester += symbols[j].strings[result[j]] + "\n";
+                            tester += symbols[j].stringSets[result[j].set].strings[result[j].str] + "\n";
                         }
                     }
                     else if (!regexes.NullOrEmpty() && regexes[i].concatinate == RegexConcatinationMethod.Previous || regexes.NullOrEmpty() && concatinate == RegexConcatinationMethod.Previous)
                     {
                         // perform regex test on only immediate previously selected string + next
-                        tester = symbols[i - 1].strings[result[i - 1]] + "\n";
+                        tester = symbols[i - 1].stringSets[result[i - 1].set].strings[result[i - 1].str] + "\n";
                     }
                     // if none then leave tester as ""
                 }
@@ -135,18 +149,24 @@ namespace RR
 
                 if (regexLocal.NullOrEmpty())
                 {
-                    for (int j = 0; j < symbols[i].Count; j++)
+                    for (int j = 0; j < symbols[i].stringSets.Count; j++)
                     {
-                        valids[i].Add(j);
+                        for (int k = 0; k < symbols[i].stringSets[j].Count; k++)
+                        {
+                            valids[i].Add(new setAndStr(j, k));
+                        }
                     }
                 }
                 else
                 {
-                    for (int j = 0; j < symbols[i].Count; j++)
+                    for (int j = 0; j < symbols[i].stringSets.Count; j++)
                     {
-                        if (Regex.IsMatch(tester + symbols[i].strings[j], regexLocal))
+                        for (int k = 0; k < symbols[i].stringSets[j].Count; k++)
                         {
-                            valids[i].Add(j);
+                            if (Regex.IsMatch(tester + symbols[i].stringSets[j].strings[k], regexLocal))
+                            {
+                                valids[i].Add(new setAndStr(j, k));
+                            }
                         }
                     }
                 }
@@ -155,7 +175,7 @@ namespace RR
                 if (valids[i].Any())
                 {
                     // select one of the strings that passed the regex
-                    result[i] = valids[i].RandomElement();
+                    result[i] = valids[i].RandomElementByWeight((setAndStr a) => symbols[i].stringSets[a.set].priority);
                 }
                 else 
                 {
@@ -183,7 +203,7 @@ namespace RR
             // successfully resolved!
             for (int i = 0; i < result.Length; i++)
             {
-                resultStrings[i] = symbols[i].strings[result[i]];
+                resultStrings[i] = symbols[i].stringSets[result[i].set].strings[result[i].str];
             }
         }
 

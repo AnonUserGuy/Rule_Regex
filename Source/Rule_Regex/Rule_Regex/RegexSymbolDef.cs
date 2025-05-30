@@ -10,11 +10,11 @@ namespace RR
 
         [MayTranslate]
         [TranslationCanChangeCount]
-        public List<string> paths = new List<string>();
+        public List<RegexSymbolPath> paths = new List<RegexSymbolPath>();
 
         [MayTranslate]
         [TranslationCanChangeCount]
-        public List<string> strings = new List<string>();
+        public List<RegexSymbolStringSet> stringSets = new List<RegexSymbolStringSet>();
 
         private bool isInit = false;
 
@@ -24,20 +24,27 @@ namespace RR
         }
         public int Count
         {
-            get => strings.Count;
+            get {
+                int a = 0;
+                foreach (RegexSymbolStringSet stringSet in stringSets)
+                {
+                    a += stringSet.strings.Count;
+                }
+                return a;
+            }
         }
 
         public void Init()
         {
             isInit = true;
 
-            foreach (string path in paths)
+            foreach (RegexSymbolPath path in paths)
             {
-                LoadStringsFromFile(path);
+                AddStringsFromFile(path.path, path.priority);
             }
 
             // of course the vanilla namebanks system doesn't let you just access the list of names,
-            // only random members. So yeah, we have to make a whole seperate copy off all the names
+            // only random members. So yeah, we have to make a whole seperate copy of all the names
             // just for us. great
             foreach (PawnNameSlotGenderTuple pawnName in pawnNames)
             {
@@ -45,57 +52,60 @@ namespace RR
                 {
                     if (pawnName.gender == Gender.Male)
                     {
-                        AddNamesFromFile("First_Male");
+                        AddStringsFromNames("First_Male", pawnName.priority);
                     }
                     else
                     {
-                        AddNamesFromFile("First_Female");
+                        AddStringsFromNames("First_Female", pawnName.priority);
                     }
                 }
                 else if (pawnName.slot == PawnNameSlot.Nick)
                 {
                     if (pawnName.gender == Gender.Male)
                     {
-                        AddNamesFromFile("Nick_Male");
+                        AddStringsFromNames("Nick_Male", pawnName.priority);
                     }
                     else if (pawnName.gender == Gender.Female)
                     {
-                        AddNamesFromFile("Nick_Female");
+                        AddStringsFromNames("Nick_Female", pawnName.priority);
                     }
                     else
                     {
-                        AddNamesFromFile("Nick_Unisex");
+                        AddStringsFromNames("Nick_Unisex", pawnName.priority);
                     }
                 }
                 else
                 {
-                    AddNamesFromFile("Last");
+                    AddStringsFromNames("Last", pawnName.priority);
                 }
             }
         }
 
-        private void LoadStringsFromFile(string filePath)
+        private void AddStringsFromFile(string filePath, float priority)
         {
             if (!Translator.TryGetTranslatedStringsForFile(filePath, out var stringList))
             {
                 return;
             }
+            AddStrings(stringList, priority);
+        }
+
+        private void AddStringsFromNames(string fileName, float priority)
+        {
+            AddStrings(GenFile.LinesFromFile("Names/" + fileName), priority);
+        }
+
+        public void AddStrings(IEnumerable<string> stringList, float priority)
+        {
+            int i = stringSets.FindIndex(x => x.priority == priority);
+            if (i == -1)
+            {
+                stringSets.Add(new RegexSymbolStringSet(priority));
+                i = stringSets.Count - 1;
+            }
             foreach (string item in stringList)
             {
-                strings.Add(item);
-            }
-        }
-
-        private void AddNamesFromFile(string fileName)
-        {
-            AddNames(GenFile.LinesFromFile("Names/" + fileName));
-        }
-
-        public void AddNames(IEnumerable<string> namesToAdd)
-        {
-            foreach (string item in namesToAdd)
-            {
-                strings.Add(item);
+                stringSets[i].strings.Add(item);
             }
         }
     }

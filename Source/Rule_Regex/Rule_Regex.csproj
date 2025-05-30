@@ -45,6 +45,8 @@
     <Compile Include="Rule_Regex\RegexEntry.cs" />
     <Compile Include="Rule_Regex\RegexSymbolDef.cs" />
     <Compile Include="Rule_Regex\PawnNameSlotGenderTuple.cs" />
+    <Compile Include="Rule_Regex\RegexSymbolPath.cs" />
+    <Compile Include="Rule_Regex\RegexSymbolStringSet.cs" />
     <Compile Include="Rule_Regex\Rule_Regex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rule_Regex\Rule_NamePersonBetter.cs" />
